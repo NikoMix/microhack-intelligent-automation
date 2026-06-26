@@ -1,0 +1,51 @@
+name: Lab work item
+description: A buildable work item for a course lab or shared component.
+title: "[Lab N] <short title>"
+labels: ["lab"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for a self-contained, buildable unit of course work (a lab, a shared
+        component, or infrastructure). Evidence-only specialization tasks are out of scope —
+        capture them as a 📋 evidence-awareness callout instead.
+  - type: input
+    id: module-b
+    attributes:
+      label: Module B requirement(s)
+      description: Which Module B control(s) does this map to? (e.g. B.1.1, B.1.2, B.3.2)
+      placeholder: B.1.1
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: What does "done" look like for a learner and for the trainer?
+    validations:
+      required: true
+  - type: textarea
+    id: tasks
+    attributes:
+      label: Tasks
+      description: Checklist of buildable tasks.
+      value: |
+        - [ ] Working code / IaC
+        - [ ] Tests green (pytest / xUnit)
+        - [ ] Lint + analyzers green (ruff/mypy/bandit | Roslyn/dotnet format)
+        - [ ] Lab guide (objectives → steps → validation → upgrade notes → 📋 evidence callout)
+        - [ ] Dependencies latest + zero known vulnerabilities
+    validations:
+      required: true
+  - type: dropdown
+    id: language
+    attributes:
+      label: Primary language
+      options:
+        - Python
+        - .NET
+        - Bicep / IaC
+        - Docs only
+        - Mixed
+    validations:
+      required: true

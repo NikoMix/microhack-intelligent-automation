@@ -1,0 +1,92 @@
+# ============================================================================
+# EditorConfig — shared code-style + analyzer telemetry for the whole repo.
+# Polyglot: Python (ruff/mypy/bandit) + .NET (Roslyn analyzers) + IaC.
+# https://editorconfig.org
+# ============================================================================
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+[*.{md,markdown}]
+trim_trailing_whitespace = false
+max_line_length = off
+
+[*.{yml,yaml,json,jsonc}]
+indent_size = 2
+
+[*.{js,ts,jsx,tsx,css,scss,html}]
+indent_size = 2
+
+[*.{bicep,tf}]
+indent_size = 2
+
+[*.{ps1,psm1,psd1}]
+indent_size = 4
+
+[Makefile]
+indent_style = tab
+
+# ----------------------------------------------------------------------------
+# .NET / C# — code style enforced in build (EnforceCodeStyleInBuild=true).
+# These rules give "telemetry on code smells": deviations surface as warnings,
+# and the projects treat warnings as errors.
+# ----------------------------------------------------------------------------
+[*.cs]
+indent_size = 4
+
+# Namespaces & usings
+csharp_style_namespace_declarations = file_scoped:warning
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+csharp_using_directive_placement = outside_namespace:warning
+
+# 'this.' is redundant
+dotnet_style_qualification_for_field = false:warning
+dotnet_style_qualification_for_property = false:warning
+dotnet_style_qualification_for_method = false:warning
+dotnet_style_qualification_for_event = false:warning
+
+# Modern language features
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_prefer_braces = true:warning
+csharp_style_prefer_pattern_matching = true:suggestion
+csharp_style_expression_bodied_methods = true:silent
+dotnet_style_object_initializer = true:suggestion
+dotnet_style_collection_initializer = true:suggestion
+dotnet_style_prefer_conditional_expression_over_assignment = true:silent
+dotnet_style_namespace_match_folder = true:suggestion
+
+# Readability
+dotnet_style_readonly_field = true:warning
+csharp_prefer_simple_using_statement = true:suggestion
+csharp_style_prefer_index_operator = true:suggestion
+csharp_style_prefer_range_operator = true:suggestion
+
+# Naming: async methods end with Async (telemetry on convention drift)
+dotnet_naming_rule.async_methods_end_in_async.severity = warning
+dotnet_naming_rule.async_methods_end_in_async.symbols = async_methods
+dotnet_naming_rule.async_methods_end_in_async.style = end_in_async
+dotnet_naming_symbols.async_methods.applicable_kinds = method
+dotnet_naming_symbols.async_methods.required_modifiers = async
+dotnet_naming_style.end_in_async.required_suffix = Async
+dotnet_naming_style.end_in_async.capitalization = pascal_case
+
+# Private fields: _camelCase
+dotnet_naming_rule.private_fields_underscore.severity = suggestion
+dotnet_naming_rule.private_fields_underscore.symbols = private_fields
+dotnet_naming_rule.private_fields_underscore.style = underscore_prefix
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_style.underscore_prefix.required_prefix = _
+dotnet_naming_style.underscore_prefix.capitalization = camel_case
+
+# CA1031 (catch general exception) is acceptable at resiliency boundaries in labs.
+dotnet_diagnostic.CA1031.severity = suggestion

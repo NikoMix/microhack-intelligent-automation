@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="IAuto.Inference.Tests/IAuto.Inference.Tests.csproj" />
+  <Project Path="IAuto.Inference/IAuto.Inference.csproj" />
+</Solution>
