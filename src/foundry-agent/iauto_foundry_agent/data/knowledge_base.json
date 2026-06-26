@@ -1,0 +1,72 @@
+[
+  {
+    "id": "kb-001",
+    "title": "Connecting to the corporate VPN",
+    "content": "Remote staff connect to internal systems using the GlobalProtect VPN client. Install GlobalProtect from the Company Portal, sign in with your corporate email, and approve the multi-factor prompt. The VPN portal address is vpn.contoso.example. If GlobalProtect reports 'connection failed', restart the client and confirm you are not already on the office network.",
+    "source": "IT Helpdesk Handbook section 3.1",
+    "tags": ["vpn", "remote-access", "networking"]
+  },
+  {
+    "id": "kb-002",
+    "title": "Resetting your password",
+    "content": "Reset a forgotten or expired password from the self-service portal at reset.contoso.example. You must have registered for self-service password reset (SSPR) first. Passwords expire every 90 days, must be at least 14 characters, and cannot reuse your previous five passwords. If SSPR is unavailable, contact the IT Service Desk to verify your identity.",
+    "source": "IT Helpdesk Handbook section 2.4",
+    "tags": ["password", "identity", "sspr"]
+  },
+  {
+    "id": "kb-003",
+    "title": "Submitting an expense report",
+    "content": "Submit expenses in Concur within 30 days of the purchase date. Receipts are required for any single item over 25 USD. Meals while travelling are capped at 75 USD per day. Your direct manager approves reports up to 5,000 USD; anything higher also needs finance approval. Reimbursements are paid with the next payroll run after approval.",
+    "source": "Finance Policy: Travel & Expense",
+    "tags": ["expenses", "finance", "travel", "concur"]
+  },
+  {
+    "id": "kb-004",
+    "title": "Paid time off (PTO) policy",
+    "content": "Full-time employees accrue 20 days of paid time off per year, accruing monthly. Up to 5 unused days carry over into the next calendar year; additional unused days are forfeited. Request PTO in Workday at least two weeks in advance for absences longer than three days. Sick leave is tracked separately and does not count against your PTO balance.",
+    "source": "HR Policy: Leave & Absence",
+    "tags": ["pto", "hr", "leave", "workday"]
+  },
+  {
+    "id": "kb-005",
+    "title": "New hire onboarding checklist",
+    "content": "On day one, new hires collect their laptop from IT, complete identity verification, and enable multi-factor authentication. Within the first week, finish the security awareness training in the Learning portal and meet with your onboarding buddy. Your manager assigns your first 30-60-90 day goals. Building access badges are issued by Facilities after HR marks your start date as active.",
+    "source": "People Ops: Onboarding Guide",
+    "tags": ["onboarding", "hr", "new-hire"]
+  },
+  {
+    "id": "kb-006",
+    "title": "Requesting new software",
+    "content": "Request software through the IT Service Catalog. Titles on the pre-approved list are installed automatically via the Company Portal. Anything not pre-approved requires a license review and manager approval, and the security team must validate it before installation. Never install unlicensed or personal software on corporate devices.",
+    "source": "IT Helpdesk Handbook section 5.2",
+    "tags": ["software", "procurement", "service-catalog"]
+  },
+  {
+    "id": "kb-007",
+    "title": "Setting up multi-factor authentication (MFA)",
+    "content": "All accounts require multi-factor authentication using the Microsoft Authenticator app. Register at aka.ms/mfasetup by adding your work account and approving a test sign-in. If you replace your phone, re-register MFA before wiping the old device, or contact the Service Desk to reset your methods. Hardware security keys are available on request for privileged accounts.",
+    "source": "Security Standard: Authentication",
+    "tags": ["mfa", "security", "identity", "authenticator"]
+  },
+  {
+    "id": "kb-008",
+    "title": "Hybrid and remote work policy",
+    "content": "Most roles follow a hybrid schedule of at least three days per week in the office. Fully remote arrangements require director approval and a signed remote-work agreement. Employees working remotely must use the GlobalProtect VPN for internal systems and keep their home network secured. Core collaboration hours are 10:00 to 15:00 in your local time zone.",
+    "source": "HR Policy: Ways of Working",
+    "tags": ["remote-work", "hybrid", "hr", "policy"]
+  },
+  {
+    "id": "kb-009",
+    "title": "Laptop refresh and hardware replacement",
+    "content": "Corporate laptops are refreshed every three years. When you are eligible, IT notifies you and schedules a swap. For damaged or failing hardware, open a ticket in the IT Service Catalog and include the asset tag from the sticker on the device. Loaner laptops are available for urgent needs while repairs are completed. Back up your files to OneDrive before any hardware swap.",
+    "source": "IT Helpdesk Handbook section 4.6",
+    "tags": ["hardware", "laptop", "asset-management"]
+  },
+  {
+    "id": "kb-010",
+    "title": "Reporting phishing and security incidents",
+    "content": "Report suspected phishing by using the 'Report Message' button in Outlook, which forwards the email to the security team. For any suspected security incident, such as a lost device or leaked credentials, contact the Security Operations Center immediately at soc.contoso.example or extension 4444. Do not attempt to investigate malware yourself; disconnect the device from the network and wait for guidance.",
+    "source": "Security Standard: Incident Response",
+    "tags": ["security", "phishing", "incident", "soc"]
+  }
+]

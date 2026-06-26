@@ -1,0 +1,94 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "iauto-foundry-agent"
+version = "0.1.0"
+description = "Copilot Studio → Azure AI Foundry agent with RAG, built on Microsoft Agent Framework and the modular iauto-inference layer."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [{ name = "Intelligent Automation TTT" }]
+keywords = ["azure", "ai-foundry", "agent-framework", "rag", "azure-ai-search", "intelligent-automation"]
+dependencies = [
+  # Modular inference backbone (path dependency, see [tool.uv.sources]).
+  "iauto-inference",
+  # Microsoft Agent Framework — core + the chat-completions OpenAI connector.
+  # We deliberately use the chat-completions client (not the Responses client) so the
+  # free GitHub Models default works alongside Azure OpenAI / Foundry by config only.
+  "agent-framework-core>=1.9,<2",
+  "agent-framework-openai>=1.8.2,<2",
+  "pydantic>=2.9,<3",
+  "pydantic-settings>=2.5,<3",
+]
+
+[project.optional-dependencies]
+# Azure AI Search retriever + Entra ID auth (DefaultAzureCredential). The local BM25
+# fallback needs none of this, so the lab runs with zero Azure.
+azure = [
+  "azure-search-documents>=11.5,<12",
+  "azure-identity>=1.19,<2",
+]
+# OpenTelemetry → Azure Monitor / Application Insights. Lazy-loaded; optional.
+telemetry = ["azure-monitor-opentelemetry>=1.6,<2"]
+dev = [
+  "ruff>=0.6",
+  "mypy>=1.11",
+  "pytest>=8.3",
+  "pytest-asyncio>=0.24",
+  "bandit>=1.7",
+  "pip-audit>=2.7",
+]
+
+[project.scripts]
+iauto-foundry-agent = "iauto_foundry_agent.cli:main"
+iauto-foundry-index = "iauto_foundry_agent.indexing:main"
+
+[tool.uv.sources]
+iauto-inference = { path = "../inference/python", editable = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["iauto_foundry_agent"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"iauto_foundry_agent/data/knowledge_base.json" = "iauto_foundry_agent/data/knowledge_base.json"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["iauto_foundry_agent", "tests"]
+
+[tool.ruff.lint]
+# Broad, opinionated rule set so code smells surface as lint failures (telemetry on quality).
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "TID", "RUF", "ASYNC", "S", "PL"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+# Tests: asserts and magic values are idiomatic; conditional imports follow importorskip.
+"tests/**" = ["S101", "PLR2004", "PLC0415"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+disallow_untyped_defs = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+# Optional Azure SDKs are lazily imported and not always type-complete.
+module = ["azure.*", "azure.monitor.*", "azure.search.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-ra"
+filterwarnings = [
+    # Microsoft Agent Framework is in public preview and emits ExperimentalWarning on import.
+    "ignore:.*is experimental and may change.*",
+]
+
+[tool.bandit]
+exclude_dirs = ["tests"]
