@@ -1,0 +1,90 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {},
+        "triggers": {
+            "When_an_order_status_request_is_received": {
+                "type": "Request",
+                "kind": "Http",
+                "inputs": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "orderId": {
+                                "type": "string"
+                            },
+                            "question": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "orderId"
+                        ]
+                    }
+                }
+            }
+        },
+        "actions": {
+            "Call_enrichment_function": {
+                "type": "Http",
+                "inputs": {
+                    "method": "POST",
+                    "uri": "@appsetting('FUNCTION_ENRICH_ORDER_URL')",
+                    "headers": {
+                        "Content-Type": "application/json",
+                        "x-functions-key": "@appsetting('FUNCTION_HOST_KEY')"
+                    },
+                    "body": {
+                        "orderId": "@triggerBody()?['orderId']",
+                        "question": "@triggerBody()?['question']"
+                    }
+                },
+                "runAfter": {},
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                }
+            },
+            "Return_enriched_status": {
+                "type": "Response",
+                "kind": "Http",
+                "inputs": {
+                    "statusCode": "@outputs('Call_enrichment_function')['statusCode']",
+                    "headers": {
+                        "Content-Type": "application/json"
+                    },
+                    "body": "@body('Call_enrichment_function')"
+                },
+                "runAfter": {
+                    "Call_enrichment_function": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "Return_upstream_failure": {
+                "type": "Response",
+                "kind": "Http",
+                "inputs": {
+                    "statusCode": 502,
+                    "headers": {
+                        "Content-Type": "application/json"
+                    },
+                    "body": {
+                        "error": "The enrichment function could not be reached.",
+                        "detail": "@body('Call_enrichment_function')"
+                    }
+                },
+                "runAfter": {
+                    "Call_enrichment_function": [
+                        "Failed",
+                        "TimedOut"
+                    ]
+                }
+            }
+        },
+        "outputs": {}
+    },
+    "kind": "Stateful"
+}
