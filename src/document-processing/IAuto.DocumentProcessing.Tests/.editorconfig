@@ -1,0 +1,12 @@
+# Test-project-scoped overrides (inherits the repo-root .editorconfig).
+#
+# xUnit tests use the well-established `MethodUnderTest_Scenario_Expectation`
+# naming convention (e.g. `ProcessAsync_AutoApproves_WhenConfident`). The repo
+# root keeps `async_methods_end_in_async` as a *warning* — "telemetry on
+# convention drift" — which expects the literal `Async` suffix at the END of the
+# identifier. That suffix rule is meaningful for production APIs but conflicts
+# with descriptive test names, so we scope it down to `none` for this test
+# project ONLY. This keeps `dotnet format --verify-no-changes` green here without
+# modifying the shared root config or sacrificing readable test names.
+[*.cs]
+dotnet_naming_rule.async_methods_end_in_async.severity = none
