@@ -1,0 +1,155 @@
+name: CI
+
+# Continuous integration for the whole repository: discovers every .NET solution and Python
+# project, then runs build -> test -> format -> vulnerability scan. Designed to stay green as
+# additional labs land on the shared training branch.
+
+on:
+  push:
+    branches: [main, nikomix-module-b-ttt-training-lab]
+  pull_request:
+    branches: [main, nikomix-module-b-ttt-training-lab]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dotnet:
+    name: .NET (build - test - format - vuln)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Discover solutions
+        run: |
+          find . -type f \( -name '*.slnx' -o -name '*.sln' \) \
+            -not -path '*/bin/*' -not -path '*/obj/*' | sort > solutions.txt
+          echo "Solutions found:"; cat solutions.txt
+          if [ ! -s solutions.txt ]; then echo "No .NET solutions to build."; fi
+
+      - name: Restore & build
+        run: |
+          set -euo pipefail
+          while IFS= read -r sln; do
+            [ -z "$sln" ] && continue
+            echo "::group::build $sln"
+            dotnet build "$sln" -c Release --nologo
+            echo "::endgroup::"
+          done < solutions.txt
+
+      - name: Test
+        run: |
+          set -euo pipefail
+          while IFS= read -r sln; do
+            [ -z "$sln" ] && continue
+            echo "::group::test $sln"
+            rc=0
+            out=$(dotnet test "$sln" -c Release --no-build --nologo --verbosity normal 2>&1) || rc=$?
+            echo "$out"
+            if [ "$rc" -ne 0 ]; then
+              if echo "$out" | grep -qiE "no test (is available|projects? (were|was) found)"; then
+                echo "No test projects in $sln - skipping."
+              else
+                echo "::error::Tests failed for $sln"; exit "$rc"
+              fi
+            fi
+            echo "::endgroup::"
+          done < solutions.txt
+
+      - name: Format (verify, severity error)
+        run: |
+          set -euo pipefail
+          while IFS= read -r sln; do
+            [ -z "$sln" ] && continue
+            echo "::group::format $sln"
+            dotnet format "$sln" --verify-no-changes --severity error
+            echo "::endgroup::"
+          done < solutions.txt
+
+      - name: Vulnerable packages
+        run: |
+          set -uo pipefail
+          fail=0
+          while IFS= read -r sln; do
+            [ -z "$sln" ] && continue
+            echo "::group::vuln $sln"
+            out=$(dotnet list "$sln" package --vulnerable --include-transitive 2>&1)
+            echo "$out"
+            if echo "$out" | grep -q "has the following vulnerable"; then fail=1; fi
+            echo "::endgroup::"
+          done < solutions.txt
+          if [ "$fail" -ne 0 ]; then
+            echo "::error::Vulnerable NuGet packages detected"; exit 1
+          fi
+
+  python:
+    name: Python (ruff - pytest [+ telemetry])
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up uv (Python 3.12)
+        uses: astral-sh/setup-uv@v8
+        with:
+          python-version: '3.12'
+
+      - name: Discover Python projects
+        run: |
+          find . -type f -name pyproject.toml \
+            -not -path '*/.venv/*' -not -path '*/node_modules/*' | sort > pyprojects.txt
+          echo "Python projects found:"; cat pyprojects.txt
+          if [ ! -s pyprojects.txt ]; then echo "No Python projects to check."; fi
+
+      - name: Lint & test (hard gates)
+        run: |
+          set -euo pipefail
+          while IFS= read -r pp; do
+            [ -z "$pp" ] && continue
+            dir=$(dirname "$pp")
+            echo "::group::sync $dir"
+            ( cd "$dir" && uv sync --all-extras )
+            echo "::endgroup::"
+            echo "::group::ruff check $dir"
+            ( cd "$dir" && uv run ruff check . )
+            echo "::endgroup::"
+            echo "::group::pytest $dir"
+            rc=0
+            ( cd "$dir" && uv run pytest ) || rc=$?
+            # pytest exit code 5 == "no tests collected"; treat as a pass for resilience.
+            if [ "$rc" -ne 0 ] && [ "$rc" -ne 5 ]; then
+              echo "::error::pytest failed in $dir"; exit "$rc"
+            fi
+            echo "::endgroup::"
+          done < pyprojects.txt
+
+      - name: Quality telemetry (ruff format / mypy / bandit, non-blocking)
+        continue-on-error: true
+        run: |
+          # Surfaced as warnings, not gated: formatter & type-checker behaviour drifts across
+          # tool versions and labs may be in-flight. Mirrors how this repo treats .NET naming
+          # rules (warning) and the .NET format gate (severity error only).
+          while IFS= read -r pp; do
+            [ -z "$pp" ] && continue
+            dir=$(dirname "$pp")
+            echo "::group::ruff format --check $dir"
+            ( cd "$dir" && uv run ruff format --check . ) || echo "::warning::ruff format drift in $dir"
+            echo "::endgroup::"
+            echo "::group::mypy $dir"
+            ( cd "$dir" && uv run mypy . ) || echo "::warning::mypy findings in $dir"
+            echo "::endgroup::"
+            echo "::group::bandit $dir"
+            ( cd "$dir" && uv run bandit -c pyproject.toml -r . ) || echo "::warning::bandit findings in $dir"
+            echo "::endgroup::"
+          done < pyprojects.txt

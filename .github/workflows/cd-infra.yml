@@ -1,0 +1,162 @@
+name: CD Infra
+
+# Deploys the hybrid-integration Bicep (infra/bicep/integration) with a what-if preview
+# followed by an actual deployment, promoted dev -> test -> prod behind GitHub Environment
+# approval gates. Authenticates with Azure via OIDC (no stored credentials).
+#
+# Required configuration (per environment where relevant):
+#   Secrets: AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID (federated OIDC),
+#            INFERENCE_TOKEN (GitHub Models / provider token -> gitHubToken),
+#            ONPREM_API_KEY (-> onPremApiKey).
+#   Environments: dev, test, prod. Add required reviewers to test and prod for approval gates.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [nikomix-module-b-ttt-training-lab]
+    paths:
+      - 'infra/bicep/integration/**'
+      - '.github/workflows/cd-infra.yml'
+  pull_request:
+    branches: [nikomix-module-b-ttt-training-lab]
+    paths:
+      - 'infra/bicep/integration/**'
+      - '.github/workflows/cd-infra.yml'
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: cd-infra-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  TEMPLATE: infra/bicep/integration/main.bicep
+  PARAMS_DIR: infra/bicep/integration/params
+  LOCATION: westeurope
+
+jobs:
+  validate:
+    name: Validate Bicep
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install Bicep
+        run: az bicep install
+
+      - name: Build template & parameter files
+        run: |
+          set -euo pipefail
+          az bicep build --file "$TEMPLATE"
+          for e in dev test prod; do
+            az bicep build-params --file "$PARAMS_DIR/$e.bicepparam" --outfile "/tmp/$e.parameters.json"
+          done
+          echo "Bicep template and all parameter files are valid."
+
+  deploy-dev:
+    name: Deploy dev
+    needs: validate
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: What-if (dev)
+        run: |
+          az deployment sub what-if \
+            --name "lab6-dev-${{ github.run_number }}" \
+            --location "$LOCATION" \
+            --template-file "$TEMPLATE" \
+            --parameters "$PARAMS_DIR/dev.bicepparam" \
+            --parameters gitHubToken="${{ secrets.INFERENCE_TOKEN }}" onPremApiKey="${{ secrets.ONPREM_API_KEY }}"
+
+      - name: Deploy (dev)
+        run: |
+          az deployment sub create \
+            --name "lab6-dev-${{ github.run_number }}" \
+            --location "$LOCATION" \
+            --template-file "$TEMPLATE" \
+            --parameters "$PARAMS_DIR/dev.bicepparam" \
+            --parameters gitHubToken="${{ secrets.INFERENCE_TOKEN }}" onPremApiKey="${{ secrets.ONPREM_API_KEY }}"
+
+  deploy-test:
+    name: Deploy test
+    needs: deploy-dev
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: What-if (test)
+        run: |
+          az deployment sub what-if \
+            --name "lab6-test-${{ github.run_number }}" \
+            --location "$LOCATION" \
+            --template-file "$TEMPLATE" \
+            --parameters "$PARAMS_DIR/test.bicepparam" \
+            --parameters gitHubToken="${{ secrets.INFERENCE_TOKEN }}" onPremApiKey="${{ secrets.ONPREM_API_KEY }}"
+
+      - name: Deploy (test)
+        run: |
+          az deployment sub create \
+            --name "lab6-test-${{ github.run_number }}" \
+            --location "$LOCATION" \
+            --template-file "$TEMPLATE" \
+            --parameters "$PARAMS_DIR/test.bicepparam" \
+            --parameters gitHubToken="${{ secrets.INFERENCE_TOKEN }}" onPremApiKey="${{ secrets.ONPREM_API_KEY }}"
+
+  deploy-prod:
+    name: Deploy prod
+    needs: deploy-test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: What-if (prod)
+        run: |
+          az deployment sub what-if \
+            --name "lab6-prod-${{ github.run_number }}" \
+            --location "$LOCATION" \
+            --template-file "$TEMPLATE" \
+            --parameters "$PARAMS_DIR/prod.bicepparam" \
+            --parameters gitHubToken="${{ secrets.INFERENCE_TOKEN }}" onPremApiKey="${{ secrets.ONPREM_API_KEY }}"
+
+      - name: Deploy (prod)
+        run: |
+          az deployment sub create \
+            --name "lab6-prod-${{ github.run_number }}" \
+            --location "$LOCATION" \
+            --template-file "$TEMPLATE" \
+            --parameters "$PARAMS_DIR/prod.bicepparam" \
+            --parameters gitHubToken="${{ secrets.INFERENCE_TOKEN }}" onPremApiKey="${{ secrets.ONPREM_API_KEY }}"

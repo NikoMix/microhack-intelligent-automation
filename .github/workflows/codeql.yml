@@ -1,0 +1,52 @@
+name: CodeQL
+
+# Static analysis for code-scanning telemetry across the repository's two languages.
+# build-mode 'none' uses CodeQL's buildless extractors so the scan stays green and fast as
+# additional .NET and Python labs land on the shared training branch.
+
+on:
+  push:
+    branches: [main, nikomix-module-b-ttt-training-lab]
+  pull_request:
+    branches: [main, nikomix-module-b-ttt-training-lab]
+  schedule:
+    - cron: '24 3 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: csharp
+            build-mode: none
+          - language: python
+            build-mode: none
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          queries: security-and-quality
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: '/language:${{ matrix.language }}'
