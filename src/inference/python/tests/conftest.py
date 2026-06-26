@@ -69,7 +69,7 @@ class FakeClient:
 
 
 class FakeAsyncCompletions(FakeCompletions):
-    async def create(self, **kwargs: Any) -> Any:  # type: ignore[override]
+    async def create(self, **kwargs: Any) -> Any:
         self.calls.append(kwargs)
         if kwargs.get("stream"):
             return self._astream()

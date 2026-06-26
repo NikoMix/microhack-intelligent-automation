@@ -75,4 +75,4 @@ testpaths = ["tests"]
 addopts = "-ra"
 
 [tool.bandit]
-exclude_dirs = ["tests"]
+exclude_dirs = ["tests", ".venv"]

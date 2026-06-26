@@ -11,7 +11,10 @@ from conftest import make_async, make_sync
 
 
 def _settings(**kw: object) -> InferenceSettings:
-    base = {"provider": Provider.github, "github_models_model": "openai/gpt-4o-mini"}
+    base: dict[str, object] = {
+        "provider": Provider.github,
+        "github_models_model": "openai/gpt-4o-mini",
+    }
     base.update(kw)
     return InferenceSettings(**base)  # type: ignore[arg-type]
 
