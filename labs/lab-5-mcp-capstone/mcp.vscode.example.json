@@ -1,0 +1,27 @@
+{
+  // VS Code MCP configuration — copy to `.vscode/mcp.json` at the repo root.
+  // Registers the Lab 5 capstone server so Copilot Chat (Agent mode) can call its tools.
+  // `.vscode/` is intentionally NOT committed by this lab, so this example lives in the lab folder.
+  "servers": {
+    "iauto-automation": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "--directory", "src/mcp-server", "iauto-mcp-server"],
+      "env": {
+        "INFERENCE_PROVIDER": "github",
+        "GITHUB_MODELS_ENDPOINT": "https://models.github.ai/inference",
+        "GITHUB_MODELS_MODEL": "openai/gpt-4o-mini",
+        // Prefer an MCP input prompt over a literal token so the secret is never written to disk.
+        "GITHUB_TOKEN": "${input:github-token}"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "id": "github-token",
+      "type": "promptString",
+      "description": "GitHub token with 'models: read' for GitHub Models inference",
+      "password": true
+    }
+  ]
+}
