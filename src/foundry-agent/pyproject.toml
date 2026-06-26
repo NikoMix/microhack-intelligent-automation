@@ -1,0 +1,78 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "iauto-foundry-agent"
+version = "0.1.0"
+description = "Lab 4 Azure AI Foundry RAG agent for Power Platform to Azure intelligent automation migration."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [{ name = "Intelligent Automation TTT" }]
+keywords = ["azure", "ai-foundry", "agent-framework", "azure-search", "rag", "power-platform"]
+dependencies = [
+  "agent-framework-core==1.9.0",
+  "agent-framework-foundry==1.8.2",
+  "agent-framework-openai==1.8.2",
+  "azure-identity==1.25.3",
+  "azure-monitor-opentelemetry==1.8.8",
+  "azure-search-documents==12.0.0",
+  "pydantic==2.13.4",
+  "python-dotenv==1.2.2",
+]
+
+[project.optional-dependencies]
+# Optional provider-swappable generation/summarization via the shared modular inference layer.
+ai = ["iauto-inference[azure,telemetry]"]
+dev = [
+  "ruff==0.15.20",
+  "mypy==2.1.0",
+  "pytest==9.1.1",
+  "pytest-asyncio==1.4.0",
+  "bandit==1.9.4",
+  "pip-audit==2.10.1",
+]
+
+[project.scripts]
+iauto-foundry = "iauto_foundry_agent.cli:main"
+
+[tool.uv.sources]
+# During the labs both packages are installed from the repo; resolve the optional
+# inference dependency to the shared modular-inference package.
+iauto-inference = { path = "../../src/inference/python", editable = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["iauto_foundry_agent"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"iauto_foundry_agent/knowledge" = "iauto_foundry_agent/knowledge"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["iauto_foundry_agent", "tests"]
+
+[tool.ruff.lint]
+# Broad, opinionated rule set so code smells surface as lint failures (telemetry on quality).
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "TID", "RUF", "ASYNC", "S", "PL"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "PLR2004", "E501"]   # asserts, magic values, long fixtures
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+disallow_untyped_defs = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.bandit]
+exclude_dirs = ["tests"]
