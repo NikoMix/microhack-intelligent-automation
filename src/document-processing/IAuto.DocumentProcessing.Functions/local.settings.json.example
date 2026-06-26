@@ -1,0 +1,37 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+
+    "//": "--- Modular inference (LLM post-processing). Defaults to GitHub Models (free). ---",
+    "INFERENCE_PROVIDER": "github",
+    "GITHUB_TOKEN": "<your-github-pat-with-models-read>",
+    "GITHUB_MODELS_MODEL": "openai/gpt-4o-mini",
+
+    "//azure_openai": "INFERENCE_PROVIDER=azure_openai; set AZURE_OPENAI_ENDPOINT + AZURE_OPENAI_DEPLOYMENT (key optional -> Entra).",
+    "//foundry": "INFERENCE_PROVIDER=foundry; set AZURE_AI_FOUNDRY_ENDPOINT + AZURE_AI_FOUNDRY_MODEL (key optional -> Entra).",
+
+    "//": "--- Document Intelligence. Prefer Entra ID (omit ApiKey) over the key fallback. ---",
+    "DocumentIntelligence:Endpoint": "https://<your-doc-intel>.cognitiveservices.azure.com/",
+    "DocumentIntelligence:ApiKey": "",
+
+    "//": "--- Routing options. ---",
+    "DocumentProcessing:DefaultModelId": "prebuilt-invoice",
+    "DocumentProcessing:ConfidenceThreshold": "0.80",
+    "DocumentProcessing:EnableInsights": "false",
+    "DocumentProcessing:RequiredFields:0": "InvoiceTotal",
+    "DocumentProcessing:RequiredFields:1": "VendorName",
+
+    "//": "--- Human-in-the-loop approval queue. The writer uses Approval:QueueServiceUri ---",
+    "//": "--- (Entra) or Approval:ConnectionString. The queue trigger uses the Approval:Queue ---",
+    "//": "--- connection (Approval:Queue__queueServiceUri for Entra, or Approval:Queue conn string). ---",
+    "Approval:QueueName": "document-review",
+    "Approval:QueueServiceUri": "https://<your-storage>.queue.core.windows.net",
+    "Approval:ConnectionString": "",
+    "Approval:Queue__queueServiceUri": "https://<your-storage>.queue.core.windows.net",
+
+    "//": "--- Telemetry: set to export traces/metrics/logs to Application Insights. ---",
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": ""
+  }
+}
