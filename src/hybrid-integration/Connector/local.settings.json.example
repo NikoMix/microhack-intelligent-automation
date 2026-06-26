@@ -1,0 +1,18 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+
+    "ONPREM_BASE_URL": "http://localhost:5179/",
+    "ONPREM_API_KEY": "",
+
+    "INFERENCE_PROVIDER": "github",
+    "GITHUB_TOKEN": "<github-pat-with-models-read>",
+    "GITHUB_MODELS_ENDPOINT": "https://models.github.ai/inference",
+    "GITHUB_MODELS_MODEL": "openai/gpt-4o-mini",
+
+    "INFERENCE_TIMEOUT": "60",
+    "INFERENCE_MAX_RETRIES": "3"
+  }
+}

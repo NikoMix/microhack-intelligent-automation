@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Connector.Tests/Connector.Tests.csproj" />
+  <Project Path="Connector/Connector.csproj" />
+  <Project Path="OnPremStub/OnPremStub.csproj" />
+</Solution>

@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>IAuto.HybridIntegration.OnPremStub</RootNamespace>
+    <AssemblyName>IAuto.HybridIntegration.OnPremStub</AssemblyName>
+
+    <!-- Quality gates: analyzers + style enforced in build, warnings fail the build. -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Supply-chain telemetry: surface vulnerable + deprecated transitive packages. -->
+    <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditMode>all</NuGetAuditMode>
+
+    <Description>On-prem line-of-business stub (order management) for the Lab 6 hybrid-integration sample.</Description>
+  </PropertyGroup>
+
+</Project>
