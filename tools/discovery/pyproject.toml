@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "iauto-discovery"
+version = "0.1.0"
+description = "Discovery, sizing, and migration-decisioning for Power Platform → Azure intelligent automation (Module B.1.2)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Intelligent Automation TTT" }]
+keywords = ["azure", "power-platform", "migration", "discovery", "sizing", "intelligent-automation"]
+dependencies = [
+  "pydantic>=2.9,<3",
+]
+
+[project.optional-dependencies]
+# Optional LLM-generated executive narrative via the shared modular inference layer.
+ai = ["iauto-inference"]
+dev = [
+  "ruff>=0.6",
+  "mypy>=1.11",
+  "pytest>=8.3",
+  "bandit>=1.7",
+]
+
+[project.scripts]
+iauto-discover = "iauto_discovery.cli:main"
+
+[tool.uv.sources]
+# During the labs both packages are installed from the repo; resolve the optional
+# narrative dependency to the sibling modular-inference package.
+iauto-inference = { path = "../../src/inference/python", editable = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["iauto_discovery"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["iauto_discovery", "tests"]
+
+[tool.ruff.lint]
+# Broad, opinionated rule set so code smells surface as lint failures (telemetry on quality).
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "TID", "RUF", "ASYNC", "S", "PL"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "PLR2004", "E501"]   # asserts, magic values, long CSV fixtures
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+disallow_untyped_defs = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.bandit]
+exclude_dirs = ["tests"]
