@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from iauto_foundry_agent.agent import FoundryRagAgent
-from iauto_foundry_agent.retrieval import AzureSearchRetriever
+from iauto_foundry_agent.retrieval import AzureSearchRetriever, Retriever
 from iauto_foundry_agent.settings import Settings
 from iauto_foundry_agent.summarizer import ContextSummarizer
 from iauto_inference import ChatResult
@@ -51,7 +51,7 @@ async def test_agent_builds_grounded_prompt_and_returns_citations() -> None:
     )
     fake_agent = FakeAgent()
 
-    def factory(_: AzureSearchRetriever) -> FakeAgent:
+    def factory(_: Retriever) -> FakeAgent:
         return fake_agent
 
     runner = FoundryRagAgent(
@@ -64,6 +64,6 @@ async def test_agent_builds_grounded_prompt_and_returns_citations() -> None:
     result = await runner.answer("When do I submit expenses?")
 
     assert result.answer == "Submit within 30 days [1]."
-    assert "Retrieved Azure AI Search context" in fake_agent.prompt
+    assert "Retrieved knowledge-base context" in fake_agent.prompt
     assert "Claims must be submitted within 30 calendar days." in fake_agent.prompt
     assert result.retrieval.citations == ("[1] Contoso Expense Policy — Submission Timing",)

@@ -13,7 +13,7 @@ from azure.identity import DefaultAzureCredential
 from iauto_inference import InferenceClient, InferenceConfigError, InferenceSettings
 from pydantic import Field
 
-from iauto_foundry_agent.retrieval import AzureSearchRetriever, RetrievalResult
+from iauto_foundry_agent.retrieval import RetrievalResult, Retriever
 from iauto_foundry_agent.settings import Settings
 from iauto_foundry_agent.summarizer import ContextSummarizer
 from iauto_foundry_agent.telemetry import start_span
@@ -21,7 +21,7 @@ from iauto_foundry_agent.telemetry import start_span
 _TOOL_DESCRIPTION = "Search the migrated internal knowledge base and return grounded citations."
 _AGENT_INSTRUCTIONS = (
     "You are the Azure AI Foundry replacement for a Copilot Studio knowledge agent. "
-    "Answer only from provided Azure AI Search context or the search_knowledge_base tool. "
+    "Answer only from the provided knowledge-base context or the search_knowledge_base tool. "
     "Use concise language, state when evidence is missing, and cite every factual claim "
     "with citation numbers like [1] that map to the supplied citation list."
 )
@@ -35,7 +35,7 @@ class AgentRunnerProtocol(Protocol):
         ...
 
 
-AgentFactory = Callable[[AzureSearchRetriever], AgentRunnerProtocol]
+AgentFactory = Callable[[Retriever], AgentRunnerProtocol]
 
 
 @dataclass(frozen=True, slots=True)
@@ -56,8 +56,8 @@ class GroundedAnswer:
         )
 
 
-def make_retrieval_tool(retriever: AzureSearchRetriever) -> Callable[[str], Awaitable[str]]:
-    """Expose Azure AI Search retrieval as an Agent Framework function tool."""
+def make_retrieval_tool(retriever: Retriever) -> Callable[[str], Awaitable[str]]:
+    """Expose knowledge-base retrieval as an Agent Framework function tool."""
 
     @tool(approval_mode="never_require")
     async def search_knowledge_base(
@@ -72,19 +72,21 @@ def make_retrieval_tool(retriever: AzureSearchRetriever) -> Callable[[str], Awai
 
 
 class FoundryRagAgent:
-    """RAG runner using Agent Framework, Azure AI Search, and iauto_inference.
+    """RAG runner using Agent Framework, pluggable retrieval, and iauto_inference.
 
     Boundary: the default ``modular`` runtime gives Agent Framework an OpenAI-compatible
     async client from ``iauto_inference`` so GitHub Models, Azure OpenAI, or Foundry can be
-    swapped by environment. The optional ``foundry`` runtime uses Agent Framework's native
-    ``FoundryChatClient`` because Foundry project endpoints require that client; the retrieved
-    context summarizer still uses ``iauto_inference`` to keep the provider-swappable story visible.
+    swapped by environment. Retrieval is equally pluggable via the ``Retriever`` protocol:
+    the offline license-free ``KeywordRetriever`` (BM25, zero Azure) is the free default and
+    ``AzureSearchRetriever`` is the optional upgrade. The optional ``foundry`` runtime uses
+    Agent Framework's native ``FoundryChatClient`` because Foundry project endpoints require
+    that client; the context summarizer still uses ``iauto_inference`` throughout.
     """
 
     def __init__(
         self,
         settings: Settings,
-        retriever: AzureSearchRetriever,
+        retriever: Retriever,
         summarizer: ContextSummarizer,
         *,
         agent_factory: AgentFactory | None = None,
@@ -112,12 +114,12 @@ class FoundryRagAgent:
             runtime=self._settings.agent_runtime,
         )
 
-    def _build_agent(self, retriever: AzureSearchRetriever) -> AgentRunnerProtocol:
+    def _build_agent(self, retriever: Retriever) -> AgentRunnerProtocol:
         if self._settings.agent_runtime == "foundry":
             return self._build_foundry_agent(retriever)
         return self._build_modular_agent(retriever)
 
-    def _build_modular_agent(self, retriever: AzureSearchRetriever) -> AgentRunnerProtocol:
+    def _build_modular_agent(self, retriever: Retriever) -> AgentRunnerProtocol:
         inference_settings = InferenceSettings()
         model = inference_settings.default_model()
         if not model:
@@ -137,7 +139,7 @@ class FoundryRagAgent:
             ),
         )
 
-    def _build_foundry_agent(self, retriever: AzureSearchRetriever) -> AgentRunnerProtocol:
+    def _build_foundry_agent(self, retriever: Retriever) -> AgentRunnerProtocol:
         if not self._settings.foundry_project_endpoint:
             msg = "Set AZURE_AI_FOUNDRY_PROJECT_ENDPOINT for IAUTO_AGENT_RUNTIME=foundry."
             raise ValueError(msg)
@@ -160,7 +162,7 @@ class FoundryRagAgent:
     def _build_prompt(question: str, retrieval: RetrievalResult, summary: str) -> str:
         return (
             f"Question:\n{question}\n\n"
-            f"Retrieved Azure AI Search context:\n{retrieval.format_context()}\n\n"
+            f"Retrieved knowledge-base context:\n{retrieval.format_context()}\n\n"
             f"Citation map:\n{retrieval.format_citations()}\n\n"
             f"Provider-swappable context summary from iauto_inference:\n{summary}\n\n"
             "Write the final grounded answer. If context is insufficient, say so."
