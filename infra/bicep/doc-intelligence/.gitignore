@@ -1,0 +1,3 @@
+# Compiled ARM output from `az bicep build`. The .bicep source is authoritative;
+# the JSON is a generated build artifact and is regenerated on demand.
+main.json
