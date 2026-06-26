@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -36,6 +36,13 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.7" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.1.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.51.0" />
+    <!--
+      PINNED to the 2.x line on purpose: Microsoft.Azure.Functions.Worker.ApplicationInsights
+      2.51.0 (the latest Functions isolated AI extension) resolves the Application Insights SDK
+      2.x family (e.g. PerfCounterCollector 2.23.0). Bumping WorkerService to 3.x silently pulls
+      Microsoft.ApplicationInsights 3.x, mixing a 3.x core with 2.x perf-counter assemblies that
+      build but can throw at runtime. Revisit once a 3.x Functions worker AI extension ships.
+    -->
     <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0" />
   </ItemGroup>
 
