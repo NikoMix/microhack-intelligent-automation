@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+
+    <!-- Quality gates: analyzers + style enforced in build, warnings fail the build. -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Supply-chain telemetry: surface vulnerable + deprecated transitive packages. -->
+    <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditMode>all</NuGetAuditMode>
+
+    <RootNamespace>IAuto.DocumentProcessing</RootNamespace>
+    <Description>Document-processing pipeline (Azure AI Document Intelligence + modular inference) for the Module B Intelligent Automation lab.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.AI.DocumentIntelligence" Version="1.0.0" />
+    <PackageReference Include="Azure.Identity" Version="1.21.0" />
+    <PackageReference Include="Azure.Storage.Queues" Version="12.27.1" />
+    <PackageReference Include="Microsoft.Extensions.AI" Version="10.7.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\inference\dotnet\IAuto.Inference\IAuto.Inference.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Expose internal mapper/helpers to the test project only. -->
+    <InternalsVisibleTo Include="IAuto.DocumentProcessing.Tests" />
+  </ItemGroup>
+
+</Project>

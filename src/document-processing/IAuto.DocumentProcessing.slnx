@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="IAuto.DocumentProcessing/IAuto.DocumentProcessing.csproj" />
+  <Project Path="IAuto.DocumentProcessing.Functions/IAuto.DocumentProcessing.Functions.csproj" />
+  <Project Path="IAuto.DocumentProcessing.Tests/IAuto.DocumentProcessing.Tests.csproj" />
+</Solution>
