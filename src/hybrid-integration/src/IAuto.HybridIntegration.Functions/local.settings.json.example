@@ -1,0 +1,12 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://example.applicationinsights.azure.com/",
+    "INFERENCE_PROVIDER": "github",
+    "GITHUB_TOKEN": "<your-github-token>",
+    "GITHUB_MODELS_ENDPOINT": "https://models.github.ai/inference",
+    "GITHUB_MODELS_MODEL": "openai/gpt-4o-mini"
+  }
+}

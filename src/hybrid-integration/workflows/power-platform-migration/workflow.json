@@ -1,0 +1,174 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "triggers": {
+      "When_a_business_event_is_received": {
+        "type": "Request",
+        "kind": "Http",
+        "inputs": {
+          "schema": {
+            "type": "object",
+            "required": [
+              "eventType",
+              "sourceSystem",
+              "amount"
+            ],
+            "properties": {
+              "eventId": {
+                "type": "string"
+              },
+              "eventType": {
+                "type": "string"
+              },
+              "sourceSystem": {
+                "type": "string"
+              },
+              "customerId": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              },
+              "approvalUrl": {
+                "type": "string"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "actions": {
+      "Call_integration_bridge": {
+        "type": "Http",
+        "inputs": {
+          "method": "POST",
+          "uri": "@{appsetting('BRIDGE_API_BASE_URL')}/api/business-events",
+          "headers": {
+            "Content-Type": "application/json",
+            "x-correlation-id": "@{workflow().run.name}"
+          },
+          "body": "@triggerBody()"
+        },
+        "runAfter": {}
+      },
+      "Parse_bridge_response": {
+        "type": "ParseJson",
+        "inputs": {
+          "content": "@body('Call_integration_bridge')",
+          "schema": {
+            "type": "object",
+            "required": [
+              "eventId",
+              "correlationId",
+              "accepted",
+              "enrichment",
+              "routing"
+            ],
+            "properties": {
+              "eventId": {
+                "type": "string"
+              },
+              "correlationId": {
+                "type": "string"
+              },
+              "accepted": {
+                "type": "boolean"
+              },
+              "enrichment": {
+                "type": "object",
+                "properties": {
+                  "summary": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "type": "string"
+                  }
+                }
+              },
+              "routing": {
+                "type": "object",
+                "properties": {
+                  "priority": {
+                    "type": "string"
+                  },
+                  "target": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "runAfter": {
+          "Call_integration_bridge": [
+            "Succeeded"
+          ]
+        }
+      },
+      "Branch_on_priority": {
+        "type": "If",
+        "expression": {
+          "equals": [
+            "@body('Parse_bridge_response')?['routing']?['priority']",
+            "High"
+          ]
+        },
+        "actions": {
+          "Respond_high_priority": {
+            "type": "Response",
+            "kind": "Http",
+            "inputs": {
+              "statusCode": 202,
+              "headers": {
+                "x-correlation-id": "@body('Parse_bridge_response')?['correlationId']"
+              },
+              "body": {
+                "status": "queued-for-approval",
+                "bridge": "@body('Parse_bridge_response')"
+              }
+            }
+          }
+        },
+        "else": {
+          "actions": {
+            "Respond_standard": {
+              "type": "Response",
+              "kind": "Http",
+              "inputs": {
+                "statusCode": 200,
+                "headers": {
+                  "x-correlation-id": "@body('Parse_bridge_response')?['correlationId']"
+                },
+                "body": {
+                  "status": "processed",
+                  "bridge": "@body('Parse_bridge_response')"
+                }
+              }
+            }
+          }
+        },
+        "runAfter": {
+          "Parse_bridge_response": [
+            "Succeeded"
+          ]
+        }
+      }
+    },
+    "outputs": {}
+  },
+  "kind": "Stateful"
+}

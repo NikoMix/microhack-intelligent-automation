@@ -1,0 +1,100 @@
+name: Deploy lab environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      lab:
+        description: Lab to deploy
+        required: true
+        default: lab-6
+        type: choice
+        options:
+          - lab-6
+      resourceGroup:
+        description: Azure resource group name
+        required: true
+        type: string
+      location:
+        description: Azure region
+        required: true
+        default: swedencentral
+        type: string
+      workloadName:
+        description: Short workload name used for deterministic resource names
+        required: true
+        default: iauto
+        type: string
+      instance:
+        description: Four-character deployment discriminator
+        required: true
+        default: '006'
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy:
+    name: Deploy selected lab
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Azure login with OIDC
+        uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID || secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID || secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID || secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy shared core and selected lab
+        uses: azure/cli@v3
+        env:
+          LAB: ${{ inputs.lab }}
+          RESOURCE_GROUP: ${{ inputs.resourceGroup }}
+          LOCATION: ${{ inputs.location }}
+          WORKLOAD_NAME: ${{ inputs.workloadName }}
+          INSTANCE: ${{ inputs.instance }}
+        with:
+          inlineScript: |
+            set -euo pipefail
+            az bicep install
+            az group create --name "$RESOURCE_GROUP" --location "$LOCATION" --tags course=microhack-intelligent-automation environment=dev
+
+            az deployment group create \
+              --name "core-${GITHUB_RUN_ID}" \
+              --resource-group "$RESOURCE_GROUP" \
+              --template-file infra/bicep/core/core.bicep \
+              --parameters \
+                workloadName="$WORKLOAD_NAME" \
+                environment=dev \
+                location="$LOCATION" \
+                instance="$INSTANCE" \
+                deployKeyVault=true \
+                keyVaultAllowPublicAccess=true \
+                tags='{ "course": "microhack-intelligent-automation", "environment": "dev" }'
+
+            case "$LAB" in
+              lab-6)
+                az deployment group create \
+                  --name "lab6-${GITHUB_RUN_ID}" \
+                  --resource-group "$RESOURCE_GROUP" \
+                  --template-file infra/bicep/integration/main.bicep \
+                  --parameters infra/bicep/integration/main.bicepparam \
+                    workloadName="$WORKLOAD_NAME" \
+                    environment=dev \
+                    location="$LOCATION" \
+                    instance="$INSTANCE"
+                ;;
+              *)
+                echo "Unsupported lab: $LAB" >&2
+                exit 1
+                ;;
+            esac
