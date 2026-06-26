@@ -1,0 +1,79 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "iauto-mcp"
+version = "0.1.0"
+description = "Intelligent-automation MCP server: provider-agnostic tools backed by the iauto-inference layer."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [{ name = "Intelligent Automation TTT" }]
+keywords = [
+  "mcp",
+  "model-context-protocol",
+  "azure",
+  "intelligent-automation",
+  "github-copilot",
+  "inference",
+]
+dependencies = [
+  # Pin below the v2 line: mcp 2.x is in alpha with a different API surface.
+  "mcp>=1.28,<2",
+  "iauto-inference",
+  "pydantic>=2.11,<3",
+  "opentelemetry-api>=1.43",
+  "opentelemetry-sdk>=1.43",
+]
+
+[project.optional-dependencies]
+# 'mcp[cli]' adds the `mcp` command (mcp dev / run / install) used for the Inspector.
+dev = [
+  "mcp[cli]>=1.28,<2",
+  "ruff>=0.15",
+  "mypy>=1.13",
+  "pytest>=8.3",
+  "pytest-asyncio>=0.24",
+  "bandit>=1.8",
+  "pip-audit>=2.10",
+]
+
+[project.scripts]
+iauto-mcp-server = "iauto_mcp.server:main"
+
+# uv resolves the modular inference layer from the sibling folder as an editable install.
+[tool.uv.sources]
+iauto-inference = { path = "../inference/python", editable = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["iauto_mcp"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["iauto_mcp", "tests"]
+
+[tool.ruff.lint]
+# Broad, opinionated rule set so code smells surface as lint failures (telemetry on quality).
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "TID", "RUF", "ASYNC", "S", "PL"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "PLR2004"] # asserts + magic values are expected in tests
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+disallow_untyped_defs = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.bandit]
+exclude_dirs = ["tests"]
