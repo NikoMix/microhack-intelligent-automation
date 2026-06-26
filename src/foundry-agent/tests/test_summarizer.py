@@ -22,7 +22,9 @@ class FakeInferenceClient:
     ) -> ChatResult:
         self.messages = messages
         _ = model, temperature, max_tokens, extra
-        return ChatResult(text="Manager approval is needed up to 250 EUR [1].", model="m", provider="p")
+        return ChatResult(
+            text="Manager approval is needed up to 250 EUR [1].", model="m", provider="p"
+        )
 
 
 async def test_summarizer_uses_inference_contract() -> None:

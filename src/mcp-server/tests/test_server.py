@@ -78,7 +78,9 @@ class _FakeInferenceClient:
 
 
 @pytest.mark.asyncio
-async def test_summarize_inventory_uses_shared_inference_layer(monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_summarize_inventory_uses_shared_inference_layer(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr("iauto_mcp.server.InferenceClient", _FakeInferenceClient)
 
     response = await summarize_inventory([_cloud_flow()])

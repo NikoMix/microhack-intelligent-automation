@@ -60,8 +60,7 @@ def _tool_error(code: str, message: str, details: list[str] | None = None) -> To
 
 def _validation_details(exc: ValidationError) -> list[str]:
     return [
-        f"{'.'.join(str(part) for part in error['loc'])}: {error['msg']}"
-        for error in exc.errors()
+        f"{'.'.join(str(part) for part in error['loc'])}: {error['msg']}" for error in exc.errors()
     ]
 
 

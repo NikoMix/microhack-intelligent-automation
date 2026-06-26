@@ -115,8 +115,12 @@ class InferenceClient:
         return resolved
 
     def _params(
-        self, messages: Any, model: str | None, temperature: float | None,
-        max_tokens: int | None, extra: dict[str, Any],
+        self,
+        messages: Any,
+        model: str | None,
+        temperature: float | None,
+        max_tokens: int | None,
+        extra: dict[str, Any],
     ) -> dict[str, Any]:
         params: dict[str, Any] = {
             "model": self._model(model),

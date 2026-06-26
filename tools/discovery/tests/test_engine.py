@@ -36,9 +36,7 @@ def test_zero_runrate_defaults_small_with_note() -> None:
     assert any("No run-rate" in note for note in a.notes)
 
 
-def test_build_report_aggregates(
-    simple_flow: InventoryItem, heavy_bot: InventoryItem
-) -> None:
+def test_build_report_aggregates(simple_flow: InventoryItem, heavy_bot: InventoryItem) -> None:
     report = build_report([simple_flow, heavy_bot])
     s = report.summary
     assert s.total_items == 2

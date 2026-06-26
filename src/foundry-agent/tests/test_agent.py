@@ -32,7 +32,9 @@ class FakeInferenceClient:
         **extra: Any,
     ) -> ChatResult:
         _ = messages, model, temperature, max_tokens, extra
-        return ChatResult(text="Claims must be submitted within 30 days [1].", model="m", provider="p")
+        return ChatResult(
+            text="Claims must be submitted within 30 days [1].", model="m", provider="p"
+        )
 
 
 async def test_agent_builds_grounded_prompt_and_returns_citations() -> None:

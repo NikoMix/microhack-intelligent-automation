@@ -24,8 +24,7 @@ _AAD_SCOPE = "https://cognitiveservices.azure.com/.default"
 def _require(value: str | None, name: str, provider: Provider) -> str:
     if not value:
         raise InferenceConfigError(
-            f"Provider '{provider.value}' requires {name}. "
-            f"Set it in your environment or .env file."
+            f"Provider '{provider.value}' requires {name}. Set it in your environment or .env file."
         )
     return value
 
@@ -68,9 +67,7 @@ def build_clients(settings: InferenceSettings) -> tuple[Any, Any]:
         endpoint = _require(
             settings.azure_openai_endpoint, "AZURE_OPENAI_ENDPOINT", Provider.azure_openai
         )
-        _require(
-            settings.azure_openai_deployment, "AZURE_OPENAI_DEPLOYMENT", Provider.azure_openai
-        )
+        _require(settings.azure_openai_deployment, "AZURE_OPENAI_DEPLOYMENT", Provider.azure_openai)
         az_common: dict[str, Any] = {
             "azure_endpoint": endpoint,
             "api_version": settings.azure_openai_api_version,

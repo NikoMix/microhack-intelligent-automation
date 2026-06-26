@@ -80,9 +80,7 @@ def build_report(
     gross_pp_savings = round(
         sum(assumptions.pp_premium_monthly for a in assessments if a.item.premium_licensed), 2
     )
-    total_migration_cost = round(
-        sum(_effort_cost(a.effort, assumptions) for a in assessments), 2
-    )
+    total_migration_cost = round(sum(_effort_cost(a.effort, assumptions) for a in assessments), 2)
 
     net_monthly_savings = gross_pp_savings - total_monthly_cost
     payback_months: float | None = (

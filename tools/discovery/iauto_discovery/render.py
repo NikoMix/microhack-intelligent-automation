@@ -36,10 +36,7 @@ def _summary_block(report: DiscoveryReport) -> list[str]:
 
 
 def _assessment_table(report: DiscoveryReport) -> list[str]:
-    header = (
-        "| Automation | Type | Azure target | Pattern ref | Tier | "
-        "Effort | $/mo |"
-    )
+    header = "| Automation | Type | Azure target | Pattern ref | Tier | Effort | $/mo |"
     divider = "|---|---|---|---|---|---|---|"
     rows = [header, divider]
     for a in report.assessments:
