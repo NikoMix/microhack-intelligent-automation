@@ -1,0 +1,37 @@
+{
+  "items": [
+    {
+      "name": "Invoice intake bot",
+      "automation_type": "ai_builder_doc",
+      "runs_per_day": 40,
+      "avg_minutes": 3,
+      "connectors": 4,
+      "complexity": "medium",
+      "data_sensitivity": "high",
+      "on_prem_dependency": true,
+      "premium_licensed": true
+    },
+    {
+      "name": "Nightly ERP sync",
+      "automation_type": "unattended_rpa",
+      "runs_per_day": 1,
+      "avg_minutes": 90,
+      "connectors": 6,
+      "complexity": "high",
+      "data_sensitivity": "medium",
+      "on_prem_dependency": true,
+      "premium_licensed": true
+    },
+    {
+      "name": "Sales assistant chatbot",
+      "automation_type": "copilot_studio",
+      "runs_per_day": 200,
+      "avg_minutes": 1,
+      "connectors": 5,
+      "complexity": "high",
+      "data_sensitivity": "medium",
+      "on_prem_dependency": false,
+      "premium_licensed": true
+    }
+  ]
+}

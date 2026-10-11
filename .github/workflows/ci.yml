@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+  security-events: write
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  dotnet:
+    name: .NET build, test, format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up .NET SDKs
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Restore, build, test, and format all solutions
+        run: |
+          $solutions = Get-ChildItem -Path src -Recurse -Include *.slnx,*.sln -File -ErrorAction SilentlyContinue
+          if (-not $solutions) {
+            Write-Host 'No .NET solutions found; skipping.'
+            return
+          }
+
+          foreach ($solution in $solutions) {
+            Write-Host "::group::.NET $($solution.FullName)"
+            dotnet restore $solution.FullName
+            dotnet build $solution.FullName --configuration Release --no-restore
+            dotnet test $solution.FullName --configuration Release --no-build --verbosity normal
+            dotnet format $solution.FullName --verify-no-changes --verbosity minimal
+            Write-Host '::endgroup::'
+          }
+
+  python:
+    name: Python quality gates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8
+
+      - name: Ruff format/lint, mypy, bandit, pytest for Python packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          packages=(src/inference/python tools/discovery src/foundry-agent src/mcp-server)
+          found=0
+          for package_dir in "${packages[@]}"; do
+            if [[ -f "$package_dir/pyproject.toml" ]]; then
+              found=1
+              echo "::group::Python $package_dir"
+              pushd "$package_dir"
+              uv sync --all-extras --dev
+              uv run ruff check .
+              uv run ruff format --check .
+              uv run mypy .
+              uv run bandit -c pyproject.toml -r . -q
+              uv run pytest
+              popd
+              echo '::endgroup::'
+            fi
+          done
+          if [[ "$found" -eq 0 ]]; then
+            echo 'No Python packages found; skipping.'
+          fi
+
+  bicep:
+    name: Bicep validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Build all Bicep files
+        uses: azure/cli@v3
+        with:
+          inlineScript: |
+            set -euo pipefail
+            az bicep install
+            mapfile -d '' files < <(find infra/bicep -name '*.bicep' -print0)
+            if [ "${#files[@]}" -eq 0 ]; then
+              echo 'No Bicep files found; skipping.'
+              exit 0
+            fi
+            for file in "${files[@]}"; do
+              echo "Building $file"
+              az bicep build --file "$file"
+            done
+
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [csharp, python]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v4
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v4

@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 720" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#5b6b7f"/>
+    </marker>
+    <style>
+      .title { font-size: 26px; font-weight: 700; fill: #0b5cab; }
+      .grp { font-size: 15px; font-weight: 700; fill: #334; }
+      .box { fill: #ffffff; stroke: #9db4d0; stroke-width: 1.5; rx: 10; }
+      .pp { fill: #f3eafc; stroke: #8a5cc0; }
+      .az { fill: #eaf2fb; stroke: #2f7ad1; }
+      .spine { fill: #fff5e6; stroke: #e08a1e; }
+      .lbl { font-size: 14px; fill: #1f2a37; }
+      .sub { font-size: 12px; fill: #5b6b7f; }
+      .edge { stroke: #5b6b7f; stroke-width: 1.6; fill: none; marker-end: url(#arrow); }
+      .zone { fill: none; stroke-dasharray: 6 5; stroke-width: 1.4; }
+    </style>
+  </defs>
+
+  <text x="500" y="40" class="title" text-anchor="middle">Power Platform → Azure · Intelligent Automation</text>
+
+  <!-- Power Platform estate -->
+  <rect x="30" y="80" width="220" height="300" rx="14" class="zone" stroke="#8a5cc0"/>
+  <text x="140" y="105" class="grp" text-anchor="middle" fill="#6a3aa0">Power Platform estate</text>
+  <rect x="55" y="120" width="170" height="44" rx="10" class="box pp"/>
+  <text x="140" y="147" class="lbl" text-anchor="middle">Cloud &amp; desktop flows</text>
+  <rect x="55" y="176" width="170" height="44" rx="10" class="box pp"/>
+  <text x="140" y="203" class="lbl" text-anchor="middle">Attended / unattended RPA</text>
+  <rect x="55" y="232" width="170" height="44" rx="10" class="box pp"/>
+  <text x="140" y="259" class="lbl" text-anchor="middle">Copilot Studio bots</text>
+  <rect x="55" y="288" width="170" height="44" rx="10" class="box pp"/>
+  <text x="140" y="315" class="lbl" text-anchor="middle">AI Builder models</text>
+
+  <!-- Discovery -->
+  <rect x="320" y="190" width="160" height="80" rx="12" class="box" fill="#eef7ee" stroke="#3a9d5d"/>
+  <text x="400" y="222" class="lbl" text-anchor="middle" font-weight="700">Discovery &amp; sizing</text>
+  <text x="400" y="244" class="sub" text-anchor="middle">iauto-discovery (Lab 1)</text>
+  <text x="400" y="260" class="sub" text-anchor="middle">B.1.2</text>
+
+  <path class="edge" d="M250 230 L318 230"/>
+
+  <!-- Azure targets zone -->
+  <rect x="560" y="70" width="410" height="330" rx="14" class="zone" stroke="#2f7ad1"/>
+  <text x="765" y="95" class="grp" text-anchor="middle" fill="#1d5fa8">Azure-first targets</text>
+
+  <rect x="585" y="110" width="170" height="48" rx="10" class="box az"/>
+  <text x="670" y="132" class="lbl" text-anchor="middle">Logic Apps Standard</text>
+  <text x="670" y="149" class="sub" text-anchor="middle">flows · hybrid (Lab 6)</text>
+
+  <rect x="775" y="110" width="175" height="48" rx="10" class="box az"/>
+  <text x="862" y="132" class="lbl" text-anchor="middle">Functions / Container Apps</text>
+  <text x="862" y="149" class="sub" text-anchor="middle">RPA logic (Lab 3)</text>
+
+  <rect x="585" y="170" width="170" height="48" rx="10" class="box az"/>
+  <text x="670" y="192" class="lbl" text-anchor="middle">AI Document Intelligence</text>
+  <text x="670" y="209" class="sub" text-anchor="middle">AI Builder docs (Lab 3)</text>
+
+  <rect x="775" y="170" width="175" height="48" rx="10" class="box az"/>
+  <text x="862" y="192" class="lbl" text-anchor="middle">AI Foundry + AI Search</text>
+  <text x="862" y="209" class="sub" text-anchor="middle">Copilot Studio → RAG (Lab 4)</text>
+
+  <rect x="585" y="230" width="170" height="48" rx="10" class="box az"/>
+  <text x="670" y="252" class="lbl" text-anchor="middle">MCP server + Copilot</text>
+  <text x="670" y="269" class="sub" text-anchor="middle">agent &amp; skills (Lab 5)</text>
+
+  <rect x="775" y="230" width="175" height="48" rx="10" class="box az"/>
+  <text x="862" y="252" class="lbl" text-anchor="middle">Azure ML / AI services</text>
+  <text x="862" y="269" class="sub" text-anchor="middle">predictions</text>
+
+  <rect x="585" y="300" width="365" height="44" rx="10" class="box az" fill="#e6f0fb"/>
+  <text x="767" y="321" class="lbl" text-anchor="middle" font-weight="700">Entra ID · Managed Identity · Key Vault · App Insights · Bicep · CI/CD</text>
+  <text x="767" y="337" class="sub" text-anchor="middle">cross-cutting: security · telemetry · ALM (B.3.2, Lab 6)</text>
+
+  <path class="edge" d="M480 220 L583 150"/>
+  <path class="edge" d="M480 230 L583 194"/>
+  <path class="edge" d="M480 240 L583 254"/>
+  <path class="edge" d="M480 250 L773 134"/>
+
+  <!-- Modular inference spine -->
+  <rect x="120" y="470" width="760" height="120" rx="16" class="box spine"/>
+  <text x="500" y="505" class="grp" text-anchor="middle" fill="#b3690f">Modular inference layer — the spine (Lab 2 · B.1.1)</text>
+  <text x="500" y="532" class="sub" text-anchor="middle">Python (iauto-inference) ≡ .NET (IAuto.Inference) · one env contract · provider swap = config</text>
+
+  <rect x="170" y="545" width="200" height="34" rx="8" class="box" fill="#fff" stroke="#e08a1e"/>
+  <text x="270" y="567" class="lbl" text-anchor="middle">GitHub Models (free)</text>
+  <rect x="400" y="545" width="200" height="34" rx="8" class="box" fill="#fff" stroke="#e08a1e"/>
+  <text x="500" y="567" class="lbl" text-anchor="middle">Azure OpenAI (Entra)</text>
+  <rect x="630" y="545" width="200" height="34" rx="8" class="box" fill="#fff" stroke="#e08a1e"/>
+  <text x="730" y="567" class="lbl" text-anchor="middle">Azure AI Foundry (Entra)</text>
+
+  <!-- spine feeds AI targets -->
+  <path class="edge" d="M670 470 L670 280"/>
+  <path class="edge" d="M770 470 L862 280"/>
+  <text x="700" y="455" class="sub" text-anchor="middle">reused by every AI lab</text>
+
+  <text x="500" y="630" class="sub" text-anchor="middle">Build once · swap providers by env var · secure with Entra · observe with App Insights</text>
+  <text x="500" y="652" class="sub" text-anchor="middle">GitHub Agents · Skills · MCP · Microsoft Agent Framework</text>
+</svg>

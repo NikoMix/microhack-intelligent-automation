@@ -1,0 +1,30 @@
+{
+  "confidence": 0.96,
+  "fields": {
+    "VendorName": { "content": "Contoso Office Supplies", "stringValue": "Contoso Office Supplies", "confidence": 0.99 },
+    "InvoiceId": { "content": "INV-1007", "stringValue": "INV-1007", "confidence": 0.98 },
+    "InvoiceDate": { "content": "2026-06-01", "dateValue": "2026-06-01", "confidence": 0.97 },
+    "InvoiceTotal": { "content": "$1,245.50", "currencyAmount": 1245.50, "currencyCode": "USD", "confidence": 0.95 },
+    "Items": {
+      "confidence": 0.93,
+      "arrayValue": [
+        {
+          "objectValue": {
+            "Description": { "content": "Ergonomic keyboards", "stringValue": "Ergonomic keyboards", "confidence": 0.95 },
+            "Quantity": { "content": "5", "numberValue": 5, "confidence": 0.92 },
+            "UnitPrice": { "content": "$89.50", "currencyAmount": 89.50, "currencyCode": "USD", "confidence": 0.91 },
+            "Amount": { "content": "$447.50", "currencyAmount": 447.50, "currencyCode": "USD", "confidence": 0.94 }
+          }
+        },
+        {
+          "objectValue": {
+            "Description": { "content": "Docking stations", "stringValue": "Docking stations", "confidence": 0.94 },
+            "Quantity": { "content": "4", "numberValue": 4, "confidence": 0.91 },
+            "UnitPrice": { "content": "$199.50", "currencyAmount": 199.50, "currencyCode": "USD", "confidence": 0.90 },
+            "Amount": { "content": "$798.00", "currencyAmount": 798.00, "currencyCode": "USD", "confidence": 0.94 }
+          }
+        }
+      ]
+    }
+  }
+}

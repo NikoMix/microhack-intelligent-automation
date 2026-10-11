@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/IAuto.HybridIntegration.Functions/IAuto.HybridIntegration.Functions.csproj" />
+  <Project Path="tests/IAuto.HybridIntegration.Tests/IAuto.HybridIntegration.Tests.csproj" />
+</Solution>

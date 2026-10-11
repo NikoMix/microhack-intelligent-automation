@@ -1,0 +1,23 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage__blobServiceUri": "https://<storage-account>.blob.core.windows.net/",
+    "AzureWebJobsStorage__queueServiceUri": "https://<storage-account>.queue.core.windows.net/",
+    "AzureWebJobsStorage__tableServiceUri": "https://<storage-account>.table.core.windows.net/",
+    "DocumentStorage__blobServiceUri": "https://<storage-account>.blob.core.windows.net/",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://example.applicationinsights.azure.com/",
+    "DocumentProcessing__StorageBlobServiceUri": "https://<storage-account>.blob.core.windows.net/",
+    "DocumentProcessing__DocumentIntelligenceEndpoint": "https://<document-intelligence-name>.cognitiveservices.azure.com/",
+    "DocumentProcessing__IncomingContainer": "incoming",
+    "DocumentProcessing__ProcessedContainer": "processed",
+    "DocumentProcessing__DocumentIntelligenceModelId": "prebuilt-invoice",
+    "INFERENCE_PROVIDER": "github",
+    "GITHUB_TOKEN": "<set in your local environment; do not commit>",
+    "GITHUB_MODELS_ENDPOINT": "https://models.github.ai/inference",
+    "GITHUB_MODELS_MODEL": "openai/gpt-4o-mini",
+    "AZURE_OPENAI_ENDPOINT": "",
+    "AZURE_OPENAI_DEPLOYMENT": "",
+    "AZURE_OPENAI_API_VERSION": ""
+  }
+}

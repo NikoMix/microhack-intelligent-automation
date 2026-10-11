@@ -1,0 +1,66 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "iauto-inference"
+version = "0.1.0"
+description = "Modular, provider-agnostic chat inference for GitHub Models, Azure OpenAI, and Azure AI Foundry."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Intelligent Automation TTT" }]
+keywords = ["azure", "openai", "github-models", "foundry", "inference", "intelligent-automation"]
+dependencies = [
+  "openai>=2.2,<3",
+  "pydantic>=2.9,<3",
+  "pydantic-settings>=2.5,<3",
+]
+
+[project.optional-dependencies]
+# Entra ID (AAD) auth for Azure OpenAI / Foundry when no API key is supplied.
+azure = ["azure-identity>=1.19,<2"]
+# Optional OpenTelemetry tracing of completions.
+telemetry = ["opentelemetry-api>=1.27", "opentelemetry-sdk>=1.27"]
+dev = [
+  "ruff>=0.6",
+  "mypy>=1.11",
+  "pytest>=8.3",
+  "pytest-asyncio>=0.24",
+  "bandit>=1.7",
+]
+
+[project.scripts]
+iauto-smoke = "iauto_inference.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["iauto_inference"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["iauto_inference", "tests"]
+
+[tool.ruff.lint]
+# Broad, opinionated rule set so code smells surface as lint failures (telemetry on quality).
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "TID", "RUF", "ASYNC", "S", "PL"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "PLR2004"]            # asserts + magic values are fine in tests
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+disallow_untyped_defs = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]

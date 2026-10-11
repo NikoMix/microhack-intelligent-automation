@@ -1,0 +1,66 @@
+# ============================================================================
+# .gitignore — polyglot (Python, .NET, Node, Bicep/Azure, IDE) + secrets.
+# ============================================================================
+
+# --- Secrets / local config (NEVER commit) ---
+.env
+.env.*
+!.env.example
+*.local.json
+local.settings.json
+*.pem
+*.key
+*.pfx
+azure.yaml.local
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.uv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# --- .NET ---
+bin/
+obj/
+*.user
+*.suo
+.vs/
+TestResults/
+*.trx
+*.coverage
+artifacts/
+
+# --- Node ---
+node_modules/
+npm-debug.log*
+yarn-error.log
+.pnpm-store/
+
+# --- Azure / IaC ---
+.azure/
+*.tfstate
+*.tfstate.*
+.terraform/
+.bicep/
+
+# --- Editors / OS ---
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Tooling output ---
+*.log
+logs/
